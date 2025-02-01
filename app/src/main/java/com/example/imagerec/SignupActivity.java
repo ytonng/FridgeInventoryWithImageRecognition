@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.imagerec.databinding.ActivitySignupBinding;
+import java.util.regex.Pattern;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -25,32 +26,29 @@ public class SignupActivity extends AppCompatActivity {
         binding.signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = binding.signupEmail.getText().toString();
-                String password = binding.signupPassword.getText().toString();
-                String confirmPassword = binding.signupConfirm.getText().toString();
+                String email = binding.signupEmail.getText().toString().trim();
+                String password = binding.signupPassword.getText().toString().trim();
+                String confirmPassword = binding.signupConfirm.getText().toString().trim();
 
-                if(email.equals("")||password.equals("")||confirmPassword.equals(""))
+                if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                     Toast.makeText(SignupActivity.this, "All fields are mandatory", Toast.LENGTH_SHORT).show();
-                else{
-                    if(password.equals(confirmPassword)){
-                        Boolean checkUserEmail = databaseHelper.checkEmail(email);
-
-                        if(checkUserEmail == false){
-                            Boolean insert = databaseHelper.insertData(email, password);
-
-                            if(insert == true){
+                } else {
+                    if (!isValidPassword(password)) {
+                        Toast.makeText(SignupActivity.this, "Password must be at least 8 characters, include uppercase, lowercase, digit, and special character", Toast.LENGTH_LONG).show();
+                    } else if (!password.equals(confirmPassword)) {
+                        Toast.makeText(SignupActivity.this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (!databaseHelper.checkEmail(email)) {
+                            boolean insert = databaseHelper.insertData(email, password);
+                            if (insert) {
                                 Toast.makeText(SignupActivity.this, "Signup Successfully!", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
-                                startActivity(intent);
-                            }else{
+                                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                            } else {
                                 Toast.makeText(SignupActivity.this, "Signup Failed!", Toast.LENGTH_SHORT).show();
                             }
-                        }
-                        else{
+                        } else {
                             Toast.makeText(SignupActivity.this, "User already exists! Please login", Toast.LENGTH_SHORT).show();
                         }
-                    }else{
-                        Toast.makeText(SignupActivity.this, "Invalid Password!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -59,10 +57,14 @@ public class SignupActivity extends AppCompatActivity {
         binding.loginRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(SignupActivity.this, LoginActivity.class));
             }
         });
+    }
 
+    // Password Validation Function
+    private boolean isValidPassword(String password) {
+        String passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
+        return Pattern.matches(passwordPattern, password);
     }
 }

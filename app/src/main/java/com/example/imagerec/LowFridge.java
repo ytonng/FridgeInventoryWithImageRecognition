@@ -43,22 +43,26 @@ public class LowFridge extends Fragment {
 
         // Clear any previous views in the grid
         gridLayout.removeAllViews();
-
+        String userEmail = sharedPreferences.getString("email", "");
         // Get items for low fridge
-        Cursor cursor = databaseHelper.getItemsForLowFridge();
+        Cursor cursor = databaseHelper.getItemsForLowFridge(userEmail);
 
         if (cursor != null && cursor.getCount() > 0) {
+            int itemCount = cursor.getCount();
+            int columnCount = 4; // Set desired number of columns
+            gridLayout.setColumnCount(columnCount);
+
             while (cursor.moveToNext()) {
                 // Get the index for the columns
                 int itemNameIndex = cursor.getColumnIndex("item_name");
                 int iconImageIndex = cursor.getColumnIndex("icon_image");
-                int itemIdIndex = cursor.getColumnIndex("item_id"); // Assuming you have item_id column
+                int itemIdIndex = cursor.getColumnIndex("item_id");
 
                 if (itemNameIndex != -1 && iconImageIndex != -1 && itemIdIndex != -1) {
                     // Fetch item details
                     String itemName = cursor.getString(itemNameIndex);
                     byte[] iconImage = cursor.getBlob(iconImageIndex);
-                    int itemId = cursor.getInt(itemIdIndex);  // Get the itemId from the cursor
+                    int itemId = cursor.getInt(itemIdIndex);
 
                     // Convert icon image (byte array) to Bitmap
                     Bitmap iconBitmap = BitmapFactory.decodeByteArray(iconImage, 0, iconImage.length);
@@ -67,14 +71,22 @@ public class LowFridge extends Fragment {
                     LinearLayout itemLayout = new LinearLayout(getContext());
                     itemLayout.setOrientation(LinearLayout.VERTICAL);
                     itemLayout.setGravity(Gravity.CENTER);
-                    itemLayout.setLayoutParams(new GridLayout.LayoutParams());
+
+                    // Set dynamic layout parameters
+                    GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+                    layoutParams.width = 0; // Let the weight handle the width
+                    layoutParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
+                    layoutParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Use weight of 1
+                    layoutParams.rowSpec = GridLayout.spec(GridLayout.UNDEFINED);
+                    layoutParams.setMargins(8, 8, 8, 8); // Optional: Add some spacing between items
+                    itemLayout.setLayoutParams(layoutParams);
 
                     // Create the image button for the item
                     ImageButton itemButton = new ImageButton(getContext());
                     itemButton.setImageBitmap(iconBitmap);
                     itemButton.setContentDescription(itemName);
                     itemButton.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-                    itemButton.setOnClickListener(v -> openDetailFragment(itemId));  // Pass itemId here
+                    itemButton.setOnClickListener(v -> openDetailFragment(itemId));
 
                     // Create a TextView for the item name
                     TextView itemNameText = new TextView(getContext());
@@ -93,7 +105,7 @@ public class LowFridge extends Fragment {
             cursor.close();
         } else {
             // Handle the case where no items are found
-            Log.d("LowFridge", "No items found for lowfridge storage.");
+            Log.d("LowFridge", "No items found for up fridge storage.");
         }
 
         return view;
@@ -101,12 +113,10 @@ public class LowFridge extends Fragment {
 
     public void openDetailFragment(int itemId) {
         // Retrieve the user's email from SharedPreferences
-        String userEmail = sharedPreferences.getString("email", "");  // Retrieve email
+        String userEmail = sharedPreferences.getString("email", "");
 
         if (userEmail.isEmpty()) {
-            // Handle case when the email is not available
             Log.d("LowFridge", "User email is not available");
-            // Optionally, prompt the user to log in or navigate to login screen
             Toast.makeText(getContext(), "Please log in to view your fridge items", Toast.LENGTH_LONG).show();
             return;
         }
@@ -114,69 +124,70 @@ public class LowFridge extends Fragment {
         // Retrieve data for the selected item and user
         Cursor cursor = databaseHelper.getItemsForUserLowFridge(userEmail, itemId);
 
-        if (cursor != null && cursor.moveToFirst()) {  // Ensure cursor has data
-            int itemNameIndex = cursor.getColumnIndex("item_name");
-            int storageLocationIndex = cursor.getColumnIndex("storage_location");
-            int quantityIndex = cursor.getColumnIndex("quantity");
-            int expiryDateIndex = cursor.getColumnIndex("expiry_date");
-            int itemImageIndex = cursor.getColumnIndex("item_image");
-            int iconImageIndex = cursor.getColumnIndex("icon_image");
-            int shelfLifeIndex = cursor.getColumnIndex("shelf_life");
-            int nutritionInfoIndex = cursor.getColumnIndex("nutritionInfo");
-            int storageDateIndex = cursor.getColumnIndex("storage_date");
+        if (cursor != null && cursor.moveToFirst()) {
+            // Extract data
+            try {
+                int itemNameIndex = cursor.getColumnIndex("item_name");
+                int storageLocationIndex = cursor.getColumnIndex("storage_location");
+                int quantityIndex = cursor.getColumnIndex("quantity");
+                int expiryDateIndex = cursor.getColumnIndex("expiry_date");
+                int itemImageIndex = cursor.getColumnIndex("item_image");
+                int iconImageIndex = cursor.getColumnIndex("icon_image");
+                int shelfLifeIndex = cursor.getColumnIndex("shelf_life");
+                int nutritionInfoIndex = cursor.getColumnIndex("nutritionInfo");
+                int storageDateIndex = cursor.getColumnIndex("storage_date");
 
-            if (itemNameIndex != -1 && storageLocationIndex != -1 && quantityIndex != -1 &&
-                    expiryDateIndex != -1 && itemImageIndex != -1 && iconImageIndex != -1 &&
-                    shelfLifeIndex != -1 && nutritionInfoIndex != -1 && storageDateIndex != -1) {
+                if (itemNameIndex != -1 && storageLocationIndex != -1 && quantityIndex != -1 &&
+                        expiryDateIndex != -1 && itemImageIndex != -1 && iconImageIndex != -1 &&
+                        shelfLifeIndex != -1 && nutritionInfoIndex != -1 && storageDateIndex != -1) {
 
-                String itemName = cursor.getString(itemNameIndex);
-                String storageLocation = cursor.getString(storageLocationIndex);
-                int quantity = cursor.getInt(quantityIndex);
-                String expiryDate = cursor.getString(expiryDateIndex);
-                byte[] itemImage = cursor.getBlob(itemImageIndex);
-                byte[] iconImage = cursor.getBlob(iconImageIndex);
-                String shelfLife = cursor.getString(shelfLifeIndex); // This might contain "4 days"
-                String nutritionInfo = cursor.getString(nutritionInfoIndex);
-                String storageDate = cursor.getString(storageDateIndex);
+                    String itemName = cursor.getString(itemNameIndex);
+                    String storageLocation = cursor.getString(storageLocationIndex);
+                    int quantity = cursor.getInt(quantityIndex);
+                    String expiryDate = cursor.getString(expiryDateIndex);
+                    byte[] itemImage = cursor.getBlob(itemImageIndex);
+                    byte[] iconImage = cursor.getBlob(iconImageIndex);
+                    String shelfLife = cursor.getString(shelfLifeIndex).replaceAll("[^0-9]", "");
+                    String nutritionInfo = cursor.getString(nutritionInfoIndex);
+                    String storageDate = cursor.getString(storageDateIndex);
 
-                // Remove non-numeric characters (e.g., " days") from the shelfLife string
-                String numericShelfLife = shelfLife.replaceAll("[^0-9]", ""); // Removes anything that's not a number
-                int shelfLifeValue = 7; // Default value if parsing fails
+                    int shelfLifeValue = 7; // Default
+                    try {
+                        shelfLifeValue = Integer.parseInt(shelfLife);
+                    } catch (NumberFormatException e) {
+                        Log.d("LowFridge", "Invalid shelf life format, using default: " + e.getMessage());
+                    }
 
-                try {
-                    shelfLifeValue = Integer.parseInt(numericShelfLife);
-                } catch (NumberFormatException e) {
-                    Log.d("LowFridge", "Invalid shelf life format, using default: " + e.getMessage());
+                    // Pass data to FridgeDetail
+                    FridgeDetail fridgeDetailFragment = new FridgeDetail();
+                    Bundle args = new Bundle();
+                    args.putInt("item_id", itemId);
+                    args.putString("item_name", itemName);
+                    args.putParcelable("item_image", BitmapFactory.decodeByteArray(itemImage, 0, itemImage.length));
+                    args.putParcelable("icon_image", BitmapFactory.decodeByteArray(iconImage, 0, iconImage.length));
+                    args.putString("storage_location", storageLocation);
+                    args.putString("storage_date", storageDate);
+                    args.putString("expiration_date", expiryDate);
+                    args.putInt("shelf_life", shelfLifeValue);
+                    args.putInt("quantity", quantity);
+                    args.putString("nutritional_info", nutritionInfo);
+                    fridgeDetailFragment.setArguments(args);
+
+                    // Navigate to FridgeDetail
+                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragment_container, fridgeDetailFragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                } else {
+                    Log.d("LowFridge", "One or more columns are missing in the cursor.");
                 }
-
-                // Create a new instance of FridgeDetail and pass the item data to it
-                FridgeDetail fridgeDetailFragment = new FridgeDetail();
-                Bundle args = new Bundle();
-                args.putInt("item_id", itemId);
-                args.putString("item_name", itemName);
-                args.putParcelable("item_image", BitmapFactory.decodeByteArray(itemImage, 0, itemImage.length));
-                args.putParcelable("icon_image", BitmapFactory.decodeByteArray(iconImage, 0, iconImage.length));
-                args.putString("storage_location", storageLocation);
-                args.putString("storage_date", storageDate);
-                args.putString("expiration_date", expiryDate);
-                args.putInt("shelf_life", shelfLifeValue); // Use the parsed shelf life
-                args.putInt("quantity", quantity);
-                args.putString("nutritional_info", nutritionInfo);
-                fridgeDetailFragment.setArguments(args);
-
-                // Begin transaction to display the FridgeDetail fragment
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, fridgeDetailFragment);
-                transaction.addToBackStack(null);  // Optionally add to back stack for navigation back
-                transaction.commit();
-            } else {
-                Log.d("LowFridge", "One or more columns are missing in the cursor.");
+            } finally {
+                cursor.close(); // Always close the cursor
             }
-
-            cursor.close();  // Don't forget to close the cursor
         } else {
             Log.d("LowFridge", "No data found for the selected item.");
         }
     }
+
 
 }

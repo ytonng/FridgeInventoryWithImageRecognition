@@ -6,7 +6,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string-array name="storage_location_options">
-        <item>Low Fridge</item>
+        <item>Down Fridge</item>
         <item>Up Fridge</item>
     </string-array>
     <!-- Strings used for fragments for navigation -->

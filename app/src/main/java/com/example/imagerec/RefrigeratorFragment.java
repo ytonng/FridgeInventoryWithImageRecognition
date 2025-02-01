@@ -20,6 +20,8 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -188,11 +190,53 @@ public class RefrigeratorFragment extends Fragment {
             String[] classes = {"Bean", "BitterGround", "BottleGourd", "Brinjal", "Broccoli", "Cabbage", "Capsium", "Carrot", "Cauliflower", "Cucumber", "Papaya", "Potato", "Pumpkin", "Radish", "Tomato"};
             String itemName = classes[maxPos];
 
-            // Now navigate to ItemDetailFragment, passing the item name and image
+            // Add more details for each item
+            Map<String, String> nutrientInfo = new HashMap<>();
+            nutrientInfo.put("Bean", "Rich in fiber, vitamin C, vitamin A, and antioxidants, making it great for digestion and immune health.");
+            nutrientInfo.put("Broccoli", "Excellent source of fiber, protein, vitamin C, vitamin K, folate, and antioxidants, supporting immunity and bone health.");
+            nutrientInfo.put("BitterGround", "Packed with fiber, vitamin C, iron, and antioxidants, which support blood sugar control and immunity.");
+            nutrientInfo.put("BottleGourd", "Hydrating and rich in vitamin C, fiber, potassium, and antioxidants, helping with digestion and heart health.");
+            nutrientInfo.put("Brinjal", "Contains fiber, antioxidants, vitamin K, and potassium, which support heart and brain health.");
+            nutrientInfo.put("Potato", "rich in carbohydrates, fiber, vitamin C, potassium, and B vitamins, providing energy and supporting nerve function.");
+            nutrientInfo.put("Cabbage", "Loaded with fiber, vitamin C, vitamin K, folate, and antioxidants, promoting digestion and overall health.");
+            nutrientInfo.put("Capsium", "Rich in vitamin C, fiber, vitamin A, folate, and antioxidants, which boost immunity and skin health.");
+            nutrientInfo.put("Carrot", " Excellent source of vitamin A, fiber, vitamin K, potassium, and antioxidants, supporting vision and skin health.");
+            nutrientInfo.put("Cauliflower", "High in fiber, vitamin C, vitamin K, folate, and antioxidants, making it great for digestion and immunity.");
+            nutrientInfo.put("Cucumber", "Hydrating and rich in vitamin K, vitamin C, potassium, and antioxidants, helping with hydration and skin health.");
+            nutrientInfo.put("Papaya", "Good source of vitamin C, fiber, folate, and digestive enzymes, aiding digestion and immunity.");
+            nutrientInfo.put("Pumpkin", "Packed with vitamin A, fiber, vitamin C, potassium, and antioxidants, supporting eye and immune health.");
+            nutrientInfo.put("Radish", "Good source of vitamin C, fiber, potassium, folate, and antioxidants, promoting digestion and heart health.");
+            nutrientInfo.put("Tomato", "Rich in vitamin C, vitamin A, lycopene (a powerful antioxidant), and potassium, supporting heart health and skin health.");
+            // Add more items...
+
+            Map<String, String> shelfLifeInfo = new HashMap<>();
+            shelfLifeInfo.put("Bean", "7 days");
+            shelfLifeInfo.put("Broccoli", "5 days");
+            shelfLifeInfo.put("BitterGround", "7 days");
+            shelfLifeInfo.put("BottleGourd", "7 days");
+            shelfLifeInfo.put("Brinjal", "7 days");
+            shelfLifeInfo.put("Potato", "1 days");
+            shelfLifeInfo.put("Cabbage", "30 days");
+            shelfLifeInfo.put("Capsium", "7 days");
+            shelfLifeInfo.put("Carrot", "21 days");
+            shelfLifeInfo.put("Cauliflower", "7 days");
+            shelfLifeInfo.put("Cucumber", "7 days");
+            shelfLifeInfo.put("Papaya", "7 days");
+            shelfLifeInfo.put("Pumpkin", "5 days");
+            shelfLifeInfo.put("Radish", "7 days");
+            shelfLifeInfo.put("Tomato", "7 days");
+            // Add more items...
+
+            String nutrients = nutrientInfo.getOrDefault(itemName, "Nutrient info not available");
+            String shelfLife = shelfLifeInfo.getOrDefault(itemName, "Shelf life info not available");
+
+            // Navigate to ItemDetailFragment with additional info
             ItemDetailFragment itemDetailFragment = new ItemDetailFragment();
             Bundle bundle = new Bundle();
             bundle.putString("item_name", itemName);
             bundle.putParcelable("item_image", image);
+            bundle.putString("nutrients", nutrients);
+            bundle.putString("shelf_life", shelfLife);
             itemDetailFragment.setArguments(bundle);
 
             getActivity().getSupportFragmentManager().beginTransaction()
@@ -205,6 +249,7 @@ public class RefrigeratorFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
     // Open the camera for photo capture
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

@@ -55,7 +55,9 @@ public class ItemDetailFragment extends Fragment {
     private EditText storageDate;
     private EditText expiryDate;
     private EditText itemNameField;
+    private EditText nutritionalInfo;
     private ImageView chooseIconImageView;
+    private Button addIconButton;
     private Button uploadImageButton;
     private Button detectexpirydate;
     private com.google.mlkit.vision.text.TextRecognizer textRecognizer;
@@ -65,11 +67,27 @@ public class ItemDetailFragment extends Fragment {
 
     // Initialize icons
     private void initIcons() {
-        icons.add(R.drawable.vegetable);
-        icons.add(R.drawable.processedfood);
-        icons.add(R.drawable.baseline_rice_bowl_24);
-        icons.add(R.drawable.baseline_fastfood_24);
-        icons.add(R.drawable.baseline_icecream_24);
+        icons.add(R.drawable.banana);
+        icons.add(R.drawable.burger);
+        icons.add(R.drawable.rice);
+        icons.add(R.drawable.ramen);
+        icons.add(R.drawable.fries);
+        icons.add(R.drawable.carrot);
+        icons.add(R.drawable.pumpkin);
+        icons.add(R.drawable.brocolli);
+        icons.add(R.drawable.chocolate);
+        icons.add(R.drawable.watermelon);
+        icons.add(R.drawable.hotdog);
+        icons.add(R.drawable.mushroom);
+        icons.add(R.drawable.lemon);
+        icons.add(R.drawable.bittergourd);
+        icons.add(R.drawable.durian);
+        icons.add(R.drawable.egg);
+        icons.add(R.drawable.pizza);
+        icons.add(R.drawable.peas);
+        icons.add(R.drawable.corn);
+        icons.add(R.drawable.cannedfood);
+        icons.add(R.drawable.apple);
     }
 
     // Show icon picker dialog
@@ -120,21 +138,34 @@ public class ItemDetailFragment extends Fragment {
             }
         };
     }
+
     private void saveItem() {
         // Retrieve the email from SharedPreferences
         SharedPreferences preferences = getActivity().getSharedPreferences("userSession", getContext().MODE_PRIVATE);
         String userEmail = preferences.getString("email", "defaultEmail@example.com");
 
         // Retrieve and handle item fields
-        String itemName = itemNameField.getText().toString();
+        String itemName = itemNameField.getText().toString().trim();
+        if (itemName.isEmpty()) {
+            showToast("Please enter the item name.");
+            return;
+        }
         String storageLocation = ((Spinner) getView().findViewById(R.id.storageLocationSpinner)).getSelectedItem() != null ?
                 ((Spinner) getView().findViewById(R.id.storageLocationSpinner)).getSelectedItem().toString() : "N/A";
 
         int quantity = ((NumberPicker) getView().findViewById(R.id.quantityPicker)).getValue();
-        String expiryDateText = expiryDate.getText().toString().isEmpty() ? "N/A" : expiryDate.getText().toString();
+        String expiryDateText = expiryDate.getText().toString().trim();
+        if (expiryDateText.isEmpty()) {
+            showToast("Please select an expiry date.");
+            return;
+        }
         String shelfLife = ((NumberPicker) getView().findViewById(R.id.shelfLifePicker)).getValue() > 0 ?
                 ((NumberPicker) getView().findViewById(R.id.shelfLifePicker)).getValue() + " days" : "N/A";
-        String nutritionInfo = "Sample Nutrition";  // or set as empty string if optional
+        String nutritionInfo = nutritionalInfo.getText().toString().trim();
+        if (nutritionInfo.isEmpty()) {
+            showToast("Please enter nutritional information.");
+            return;
+        }
         String storageDateText = storageDate.getText().toString().isEmpty() ? "N/A" : storageDate.getText().toString();
 
         // Convert item image to byte array
@@ -187,8 +218,9 @@ public class ItemDetailFragment extends Fragment {
         }
     }
 
-
-
+    private void showToast(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_item_detail, container, false);
@@ -196,8 +228,10 @@ public class ItemDetailFragment extends Fragment {
         itemNameField = view.findViewById(R.id.itemnameField);
         itemImage = view.findViewById(R.id.itemImage);
         storageDate = view.findViewById(R.id.storageDate);
+        nutritionalInfo = view.findViewById(R.id.nutritionalInfo);
         expiryDate = view.findViewById(R.id.expirationDate);
         chooseIconImageView = view.findViewById(R.id.chooseIconImageView);
+        addIconButton = view.findViewById(R.id.addiconButton);
         uploadImageButton = view.findViewById(R.id.uploadImageButton);
         detectexpirydate = view.findViewById(R.id.detectexpirydate);
         textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
@@ -214,7 +248,7 @@ public class ItemDetailFragment extends Fragment {
 
         uploadImageButton.setOnClickListener(v -> openImageChooserForDisplay());
         detectexpirydate.setOnClickListener(v -> openImageChooserForExpiryDetection());
-        chooseIconImageView.setOnClickListener(v -> showIconPicker());
+        addIconButton.setOnClickListener(v -> showIconPicker());
 
         Spinner storageLocationSpinner = view.findViewById(R.id.storageLocationSpinner);
         NumberPicker quantityPicker = view.findViewById(R.id.quantityPicker);
@@ -233,9 +267,20 @@ public class ItemDetailFragment extends Fragment {
         if (getArguments() != null) {
             String itemName = getArguments().getString("item_name");
             Bitmap itemBitmap = getArguments().getParcelable("item_image");
+            String nutrients = getArguments().getString("nutrients");
+            String shelfLife = getArguments().getString("shelf_life"); // Shelf life from classifyAndNavigate
+
             itemNameField.setText(itemName);
             if (itemBitmap != null) {
                 itemImage.setImageBitmap(itemBitmap);
+            }
+            nutritionalInfo.setText(nutrients);
+            // Set shelf life picker value if detected
+            try {
+                int shelfLifeValue = Integer.parseInt(shelfLife.replaceAll("[^\\d]", ""));
+                shelfLifePicker.setValue(shelfLifeValue);
+            } catch (NumberFormatException e) {
+                shelfLifePicker.setValue(1); // Default value in case of error
             }
         }
 

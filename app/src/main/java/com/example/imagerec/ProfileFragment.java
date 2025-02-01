@@ -58,8 +58,9 @@ public class ProfileFragment extends Fragment {
 
             if (TextUtils.isEmpty(newEmail) || TextUtils.isEmpty(newPassword)) {
                 Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            } else if (!isValidPassword(newPassword)) {
+                Toast.makeText(getContext(), "Password must be at least 8 characters long and include a mix of uppercase, lowercase, numbers, and special characters.", Toast.LENGTH_LONG).show();
             } else {
-                // Update user data in the database
                 updateUserData(newEmail, newPassword);
             }
         });
@@ -125,4 +126,10 @@ public class ProfileFragment extends Fragment {
             Toast.makeText(getContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
         }
     }
+    private boolean isValidPassword(String password) {
+        String passwordPattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$";
+        return password.matches(passwordPattern);
+    }
+
 }
+

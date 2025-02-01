@@ -1,5 +1,6 @@
 package com.example.imagerec;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -20,6 +21,7 @@ import android.util.Log;
 public class HomeFragment extends Fragment {
 
     private DatabaseHelper databaseHelper;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -28,6 +30,8 @@ public class HomeFragment extends Fragment {
 
         // Initialize DatabaseHelper
         databaseHelper = new DatabaseHelper(getContext());
+        sharedPreferences = getActivity().getSharedPreferences("userSession", getContext().MODE_PRIVATE);
+        String userEmail = sharedPreferences.getString("email", "");
 
         // Set up the image slider
         ImageSlider imageSlider = view.findViewById(R.id.imageSlider);
@@ -40,18 +44,14 @@ public class HomeFragment extends Fragment {
         imageSlider.setImageList(slideModels, ScaleTypes.FIT);
 
         // Set up ImageButtons with click listeners to open RecommendDishes fragment with random dish data
-
-
-
-        // Load random dishes into the ImageButtons
-        loadRandomDishes(view);
+        loadRandomDishes(view, userEmail);
 
         return view;
     }
 
-    private void loadRandomDishes(View view) {
+    private void loadRandomDishes(View view, String userEmail) {
         // Get the list of all dishes from the database
-        Cursor cursor = databaseHelper.getAllDishes();
+        Cursor cursor = databaseHelper.getAllDishes(userEmail);
         if (cursor != null && cursor.getCount() > 0) {
             // Create a list to keep track of selected positions to avoid duplicates
             ArrayList<Integer> selectedPositions = new ArrayList<>();

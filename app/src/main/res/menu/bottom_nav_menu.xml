@@ -5,7 +5,7 @@
     <item
         android:id="@+id/btm_nav_up"
         android:title="UpFridge"
-        android:icon="@drawable/freezer" />
+        android:icon="@drawable/snow" />
 
     <!-- Spacer item -->
     <item
