@@ -53,13 +53,20 @@ public class ProfileFragment extends Fragment {
 
         // Set up save button click listener to update user data
         saveButton.setOnClickListener(v -> {
-            String newEmail = emailEditText.getText().toString();
-            String newPassword = passwordEditText.getText().toString();
+            String newEmail = emailEditText.getText().toString().trim();
+            String newPassword = passwordEditText.getText().toString().trim();
 
+            // Clear previous errors
+            emailEditText.setError(null);
+            passwordEditText.setError(null);
+
+            // Validate input fields
             if (TextUtils.isEmpty(newEmail) || TextUtils.isEmpty(newPassword)) {
                 Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            } else if (!isValidEmail(newEmail)) {
+                emailEditText.setError("Invalid email format");  // Show red "!" error on the email field
             } else if (!isValidPassword(newPassword)) {
-                Toast.makeText(getContext(), "Password must be at least 8 characters long and include a mix of uppercase, lowercase, numbers, and special characters.", Toast.LENGTH_LONG).show();
+                passwordEditText.setError("Password must be at least 8 characters, include uppercase, lowercase, a digit, and special character");  // Show red "!" error on the password field
             } else {
                 updateUserData(newEmail, newPassword);
             }
@@ -126,10 +133,15 @@ public class ProfileFragment extends Fragment {
             Toast.makeText(getContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
         }
     }
+
+    // Password validation
     private boolean isValidPassword(String password) {
         String passwordPattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$";
         return password.matches(passwordPattern);
     }
 
+    // Email validation
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
 }
-

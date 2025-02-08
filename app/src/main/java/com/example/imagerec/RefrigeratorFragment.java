@@ -207,7 +207,6 @@ public class RefrigeratorFragment extends Fragment {
             nutrientInfo.put("Pumpkin", "Packed with vitamin A, fiber, vitamin C, potassium, and antioxidants, supporting eye and immune health.");
             nutrientInfo.put("Radish", "Good source of vitamin C, fiber, potassium, folate, and antioxidants, promoting digestion and heart health.");
             nutrientInfo.put("Tomato", "Rich in vitamin C, vitamin A, lycopene (a powerful antioxidant), and potassium, supporting heart health and skin health.");
-            // Add more items...
 
             Map<String, String> shelfLifeInfo = new HashMap<>();
             shelfLifeInfo.put("Bean", "7 days");

@@ -30,25 +30,54 @@ public class SignupActivity extends AppCompatActivity {
                 String password = binding.signupPassword.getText().toString().trim();
                 String confirmPassword = binding.signupConfirm.getText().toString().trim();
 
-                if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                    Toast.makeText(SignupActivity.this, "All fields are mandatory", Toast.LENGTH_SHORT).show();
+                // Validate fields
+                boolean valid = true;
+
+                // Email Validation
+                if (email.isEmpty()) {
+                    binding.signupEmail.setError("Email is required");
+                    valid = false;
+                } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    binding.signupEmail.setError("Please enter a valid email");
+                    valid = false;
                 } else {
-                    if (!isValidPassword(password)) {
-                        Toast.makeText(SignupActivity.this, "Password must be at least 8 characters, include uppercase, lowercase, digit, and special character", Toast.LENGTH_LONG).show();
-                    } else if (!password.equals(confirmPassword)) {
-                        Toast.makeText(SignupActivity.this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
-                    } else {
-                        if (!databaseHelper.checkEmail(email)) {
-                            boolean insert = databaseHelper.insertData(email, password);
-                            if (insert) {
-                                Toast.makeText(SignupActivity.this, "Signup Successfully!", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-                            } else {
-                                Toast.makeText(SignupActivity.this, "Signup Failed!", Toast.LENGTH_SHORT).show();
-                            }
+                    binding.signupEmail.setError(null); // Clear any previous error
+                }
+
+                // Password Validation
+                if (password.isEmpty()) {
+                    binding.signupPassword.setError("Password is required");
+                    valid = false;
+                } else if (!isValidPassword(password)) {
+                    binding.signupPassword.setError("Password must be at least 8 characters, include uppercase, lowercase, digit, and special character");
+                    valid = false;
+                } else {
+                    binding.signupPassword.setError(null); // Clear any previous error
+                }
+
+                // Confirm Password Validation
+                if (confirmPassword.isEmpty()) {
+                    binding.signupConfirm.setError("Please confirm your password");
+                    valid = false;
+                } else if (!password.equals(confirmPassword)) {
+                    binding.signupConfirm.setError("Passwords do not match!");
+                    valid = false;
+                } else {
+                    binding.signupConfirm.setError(null); // Clear any previous error
+                }
+
+                // Proceed if all validations pass
+                if (valid) {
+                    if (!databaseHelper.checkEmail(email)) {
+                        boolean insert = databaseHelper.insertData(email, password);
+                        if (insert) {
+                            Toast.makeText(SignupActivity.this, "Signup Successfully!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                         } else {
-                            Toast.makeText(SignupActivity.this, "User already exists! Please login", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignupActivity.this, "Signup Failed!", Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        Toast.makeText(SignupActivity.this, "User already exists! Please login", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

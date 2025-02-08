@@ -36,12 +36,26 @@ public class LoginActivity extends AppCompatActivity {
         binding.loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = binding.loginEmail.getText().toString();
-                String password = binding.loginPassword.getText().toString();
+                String email = binding.loginEmail.getText().toString().trim();
+                String password = binding.loginPassword.getText().toString().trim();
 
-                if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(LoginActivity.this, "All fields are mandatory", Toast.LENGTH_SHORT).show();
+                // Validate email and password
+                if (email.isEmpty()) {
+                    binding.loginEmail.setError("Email is required");
+                } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    binding.loginEmail.setError("Please enter a valid email");
                 } else {
+                    binding.loginEmail.setError(null); // Clear any previous error
+                }
+
+                if (password.isEmpty()) {
+                    binding.loginPassword.setError("Password is required");
+                } else {
+                    binding.loginPassword.setError(null); // Clear any previous error
+                }
+
+                // If there are no errors, proceed with login
+                if (!email.isEmpty() && !password.isEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length() >= 6) {
                     Boolean checkCredentials = databaseHelper.checkEmailPassword(email, password);
 
                     if (checkCredentials) {
@@ -63,10 +77,10 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(LoginActivity.this, "Invalid Credentials", Toast.LENGTH_SHORT).show();
                     }
-
                 }
             }
         });
+
 
         binding.signupRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -100,6 +100,7 @@ public class FridgeDetail extends Fragment {
         deleteButton.setOnClickListener(v -> deleteItem());
         return view;
     }
+
     private void setupDatePicker(final EditText dateField) {
         dateField.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();

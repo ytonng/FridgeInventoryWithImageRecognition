@@ -75,102 +75,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (cursor != null) cursor.close();
         }
     }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS users");
-        db.execSQL("DROP TABLE IF EXISTS " + DISHES_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS items"); // Drop items table as well
-        onCreate(db);
-    }
-
-    public long insertItem(String userEmail, String itemName, String storageLocation, int quantity,
-                           String expiryDate, byte[] itemImage, byte[] iconImage, String shelfLife,
-                           String nutritionInfo, String storageDate) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put("user_email", userEmail);
-        contentValues.put("item_name", itemName);
-        contentValues.put("storage_location", storageLocation);
-        contentValues.put("quantity", quantity);
-        contentValues.put("expiry_date", expiryDate);
-        contentValues.put("item_image", itemImage);
-        contentValues.put("icon_image", iconImage);
-        contentValues.put("shelf_life", shelfLife);
-        contentValues.put("nutritionInfo", nutritionInfo); // This should be correct as per the table definition
-        contentValues.put("storage_date", storageDate);
-
-        return db.insert("items", null, contentValues);
-    }
-
-    public Cursor getItemsForLowFridge(String userEmail) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        // Fetch items where storage_location is 'Down Fridge' and sort by expiry_date (earliest first)
-        return db.rawQuery(
-                "SELECT * FROM items WHERE storage_location = ? AND user_email = ? ORDER BY expiry_date ASC",
-                new String[]{"Down Fridge", userEmail}
-        );
-    }
-
-    public Cursor getItemsForUpFridge(String userEmail) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        // Fetch items where storage_location is 'Down Fridge' and user_email matches
-        return db.rawQuery(
-                "SELECT * FROM items WHERE storage_location = ? AND user_email = ? ORDER BY expiry_date ASC",
-                new String[]{"Up Fridge", userEmail}
-        );
-    }
-    public Cursor getItemsForUserLowFridge(String userEmail, int itemId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM items WHERE user_email = ? AND item_id = ?";
-        return db.rawQuery(query, new String[]{userEmail, String.valueOf(itemId)});
-    }
-
-    public boolean updateFridgeItem(int itemId, ContentValues contentValues) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        int rowsAffected;
-
-        try {
-            // Check if the itemId is valid
-            if (itemId <= 0) {
-                Log.e("DatabaseHelper", "Invalid itemId: " + itemId);
-                return false;
-            }
-
-            // Update the database
-            rowsAffected = db.update(
-                    "items", // Corrected table name to "items"
-                    contentValues,  // Updated values
-                    "item_id=?",    // WHERE clause
-                    new String[]{String.valueOf(itemId)} // WHERE arguments
-            );
-
-            Log.d("DatabaseHelper", "Rows affected: " + rowsAffected);
-        } catch (Exception e) {
-            Log.e("DatabaseHelper", "Error updating item", e);
-            return false;
-        } finally {
-            db.close();
-        }
-
-        return rowsAffected > 0; // Return true if at least one row was updated
-    }
-
-    public boolean deleteItem(int itemId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        // Prepare the query to delete the item with the given item_id
-        String whereClause = "item_id = ?";
-        String[] whereArgs = new String[]{String.valueOf(itemId)};
-
-        // Execute the delete query and get the number of rows affected
-        int rowsDeleted = db.delete("items", whereClause, whereArgs);
-
-        // Return true if at least one row was deleted
-        return rowsDeleted > 0;
-    }
-
-
     // Insert sample dishes data into the database
     private void insertSampleDishes(SQLiteDatabase db) {
         ContentValues contentValues = new ContentValues();
@@ -243,6 +147,100 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_IMAGE_URL, "https://khinskitchen.com/wp-content/uploads/2023/03/tom-yum-fried-rice-02.jpg");  // Add image URL
         db.insert(DISHES_TABLE, null, contentValues);
     }
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS users");
+        db.execSQL("DROP TABLE IF EXISTS " + DISHES_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS items"); // Drop items table as well
+        onCreate(db);
+    }
+
+    public long insertItem(String userEmail, String itemName, String storageLocation, int quantity,
+                           String expiryDate, byte[] itemImage, byte[] iconImage, String shelfLife,
+                           String nutritionInfo, String storageDate) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("user_email", userEmail);
+        contentValues.put("item_name", itemName);
+        contentValues.put("storage_location", storageLocation);
+        contentValues.put("quantity", quantity);
+        contentValues.put("expiry_date", expiryDate);
+        contentValues.put("item_image", itemImage);
+        contentValues.put("icon_image", iconImage);
+        contentValues.put("shelf_life", shelfLife);
+        contentValues.put("nutritionInfo", nutritionInfo); // This should be correct as per the table definition
+        contentValues.put("storage_date", storageDate);
+
+        return db.insert("items", null, contentValues);
+    }
+
+    public Cursor getItemsForLowFridge(String userEmail) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        // Fetch items where storage_location is 'Down Fridge' and sort by expiry_date (earliest first)
+        return db.rawQuery(
+                "SELECT * FROM items WHERE storage_location = ? AND user_email = ? ORDER BY expiry_date ASC",
+                new String[]{"Down Fridge", userEmail}
+        );
+    }
+
+    public Cursor getItemsForUpFridge(String userEmail) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        // Fetch items where storage_location is 'Down Fridge' and user_email matches
+        return db.rawQuery(
+                "SELECT * FROM items WHERE storage_location = ? AND user_email = ? ORDER BY expiry_date ASC",
+                new String[]{"Up Fridge", userEmail}
+        );
+    }
+    public Cursor getItemsForUserLowFridge(String userEmail, int itemId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM items WHERE user_email = ? AND item_id = ?";
+        return db.rawQuery(query, new String[]{userEmail, String.valueOf(itemId)});
+    }
+
+    public boolean updateFridgeItem(int itemId, ContentValues contentValues) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsAffected;
+
+        try {
+            // Check if the itemId is valid
+            if (itemId <= 0) {
+                Log.e("DatabaseHelper", "Invalid itemId: " + itemId);
+                return false;
+            }
+
+            // Update the database
+            rowsAffected = db.update(
+                    "items",
+                    contentValues,
+                    "item_id=?",
+                    new String[]{String.valueOf(itemId)}
+            );
+
+            Log.d("DatabaseHelper", "Rows affected: " + rowsAffected);
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error updating item", e);
+            return false;
+        } finally {
+            db.close();
+        }
+
+        return rowsAffected > 0; // Return true if at least one row was updated
+    }
+
+    public boolean deleteItem(int itemId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // Prepare the query to delete the item with the given item_id
+        String whereClause = "item_id = ?";
+        String[] whereArgs = new String[]{String.valueOf(itemId)};
+
+        // Execute the delete query and get the number of rows affected
+        int rowsDeleted = db.delete("items", whereClause, whereArgs);
+
+        // Return true if at least one row was deleted
+        return rowsDeleted > 0;
+    }
+
     public Cursor getUserByEmail(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT * FROM users WHERE email = ?";
@@ -255,8 +253,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-
-
     // Method to update user data (email and password)
     public boolean updateUserData(String email, String password) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -266,7 +262,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Update the user record where the email matches
         int result = db.update("users", contentValues, "email = ?", new String[]{email});
-        return result > 0;  // Return true if at least one row was updated
+        return result > 0;
     }
 
 

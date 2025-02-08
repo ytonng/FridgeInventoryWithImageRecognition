@@ -81,7 +81,7 @@ public class HomeFragment extends Fragment {
         int nameColumnIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_NAME);
         int descriptionColumnIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_DESCRIPTION);
         int ingredientsColumnIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_INGREDIENTS);
-        int videoColumnIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_VIDEO_URL); // Assuming column exists
+        int videoColumnIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_VIDEO_URL);
 
         if (imageColumnIndex != -1 && nameColumnIndex != -1 && descriptionColumnIndex != -1 && ingredientsColumnIndex != -1 && videoColumnIndex != -1) {
             String dishName = cursor.getString(nameColumnIndex);
@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment {
             ImageButton dishButton = view.findViewById(buttonId);
             Glide.with(getContext())
                     .load(dishImageUrl)
-                    .placeholder(R.drawable.cabonara) // Add placeholder image
+                    .placeholder(R.drawable.cabonara)
                     .into(dishButton);
 
             // Set the OnClickListener for the button to open the RecommendDishes fragment with the correct data

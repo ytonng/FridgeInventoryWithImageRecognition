@@ -76,9 +76,9 @@ public class LowFridge extends Fragment {
                     GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
                     layoutParams.width = 0; // Let the weight handle the width
                     layoutParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
-                    layoutParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Use weight of 1
+                    layoutParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
                     layoutParams.rowSpec = GridLayout.spec(GridLayout.UNDEFINED);
-                    layoutParams.setMargins(8, 8, 8, 8); // Optional: Add some spacing between items
+                    layoutParams.setMargins(8, 8, 8, 8);
                     itemLayout.setLayoutParams(layoutParams);
 
                     // Create the image button for the item
